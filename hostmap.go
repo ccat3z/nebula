@@ -14,6 +14,7 @@ import (
 	"github.com/slackhq/nebula/header"
 	"github.com/slackhq/nebula/iputil"
 	"github.com/slackhq/nebula/udp"
+	"github.com/wlynxg/anet"
 )
 
 // const ProbeLen = 100
@@ -667,7 +668,7 @@ func (i *HostInfo) logger(l *logrus.Logger) *logrus.Entry {
 func localIps(l *logrus.Logger, allowList *LocalAllowList) *[]net.IP {
 	//FIXME: This function is pretty garbage
 	var ips []net.IP
-	ifaces, _ := net.Interfaces()
+	ifaces, _ := anet.Interfaces()
 	for _, i := range ifaces {
 		allow := allowList.AllowName(i.Name)
 		if l.Level >= logrus.TraceLevel {
@@ -677,7 +678,7 @@ func localIps(l *logrus.Logger, allowList *LocalAllowList) *[]net.IP {
 		if !allow {
 			continue
 		}
-		addrs, _ := i.Addrs()
+		addrs, _ := anet.InterfaceAddrsByInterface(&i)
 		for _, addr := range addrs {
 			var ip net.IP
 			switch v := addr.(type) {
