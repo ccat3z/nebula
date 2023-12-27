@@ -11,6 +11,7 @@ import (
 	"github.com/slackhq/nebula/cidr"
 	"github.com/slackhq/nebula/config"
 	"github.com/slackhq/nebula/iputil"
+	"github.com/slackhq/nebula/util"
 )
 
 type Route struct {
@@ -244,4 +245,19 @@ func ipWithin(o *net.IPNet, i *net.IPNet) bool {
 	}
 
 	return true
+}
+
+func MakeRouteTreeFromConfig(l *logrus.Logger, c *config.C, tunCidr *net.IPNet) (*cidr.Tree4[iputil.VpnIp], error) {
+	routes, err := parseRoutes(c, tunCidr)
+	if err != nil {
+		return nil, util.NewContextualError("Could not parse tun.routes", nil, err)
+	}
+
+	unsafeRoutes, err := parseUnsafeRoutes(c, tunCidr)
+	if err != nil {
+		return nil, util.NewContextualError("Could not parse tun.unsafe_routes", nil, err)
+	}
+	routes = append(routes, unsafeRoutes...)
+
+	return makeRouteTree(l, routes, false)
 }
