@@ -163,7 +163,7 @@ func newSimpleServerWithUdpAndUnsafeNetworks(v cert.Version, caCrt cert.Certific
 	c := config.NewC(l)
 	c.LoadString(string(cb))
 
-	control, err := nebula.Main(c, false, "e2e-test", l, nil)
+	control, err := nebula.Main(c, false, "e2e-test", l, nil, nil)
 
 	if err != nil {
 		panic(err)
@@ -265,7 +265,7 @@ func newServer(caCrt []cert.Certificate, certs []cert.Certificate, key []byte, o
 	cStr := string(cb)
 	c.LoadString(cStr)
 
-	control, err := nebula.Main(c, false, "e2e-test", l, nil)
+	control, err := nebula.Main(c, false, "e2e-test", l, nil, nil)
 
 	if err != nil {
 		panic(err)

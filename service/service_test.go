@@ -77,7 +77,7 @@ func newSimpleService(caCrt cert.Certificate, caKey []byte, name string, udpIp n
 
 	logger := logging.NewLogger(os.Stdout)
 
-	control, err := nebula.Main(&c, false, "custom-app", logger, overlay.NewUserDeviceFromConfig)
+	control, err := nebula.Main(&c, false, "custom-app", logger, overlay.NewUserDeviceFromConfig, nil)
 	if err != nil {
 		panic(err)
 	}

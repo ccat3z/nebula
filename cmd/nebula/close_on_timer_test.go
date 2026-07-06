@@ -71,7 +71,7 @@ routines: 2
 	c := config.NewC(l)
 	require.NoError(t, c.Load(dir))
 
-	ctrl, err := nebula.Main(c, false, "close-on-timer", l, nil)
+	ctrl, err := nebula.Main(c, false, "close-on-timer", l, nil, nil)
 	require.NoError(t, err)
 	require.NoError(t, ctrl.Start())
 

@@ -40,7 +40,7 @@ func (p *program) Start(s service.Service) error {
 		}
 	})
 
-	p.control, err = nebula.Main(c, false, Build, l, nil)
+	p.control, err = nebula.Main(c, false, Build, l, nil, nil)
 	if err != nil {
 		return err
 	}

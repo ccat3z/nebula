@@ -77,7 +77,7 @@ func main() {
 		}
 	})
 
-	ctrl, err := nebula.Main(c, *configTest, Build, l, nil)
+	ctrl, err := nebula.Main(c, *configTest, Build, l, nil, nil)
 	if err != nil {
 		util.LogWithContextIfNeeded("Failed to start", err, l)
 		os.Exit(1)

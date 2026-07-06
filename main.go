@@ -20,7 +20,13 @@ import (
 
 type m = map[string]any
 
-func Main(c *config.C, configTest bool, buildVersion string, l *slog.Logger, deviceFactory overlay.DeviceFactory) (retcon *Control, reterr error) {
+// UDPConnFactory produces the outer UDP listener nebula uses to talk to peers.
+// When non-nil, it replaces the default udp.NewListener call, allowing the host
+// application (e.g. sing-box) to supply its own socket. When nil, nebula opens
+// the socket itself as before.
+type UDPConnFactory func(l *slog.Logger, listenHost netip.Addr, port int, multi bool, batch int) (udp.Conn, error)
+
+func Main(c *config.C, configTest bool, buildVersion string, l *slog.Logger, deviceFactory overlay.DeviceFactory, udpFactory UDPConnFactory) (retcon *Control, reterr error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	// Automatically cancel the context if Main returns an error, to signal all created goroutines to quit.
 	defer func() {
@@ -161,7 +167,13 @@ func Main(c *config.C, configTest bool, buildVersion string, l *slog.Logger, dev
 
 		for i := 0; i < routines; i++ {
 			l.Info("listening", "addr", netip.AddrPortFrom(listenHost, uint16(port)))
-			udpServer, err := udp.NewListener(l, listenHost, port, routines > 1, c.GetInt("listen.batch", 64))
+			var udpServer udp.Conn
+			var err error
+			if udpFactory != nil {
+				udpServer, err = udpFactory(l, listenHost, port, routines > 1, c.GetInt("listen.batch", 64))
+			} else {
+				udpServer, err = udp.NewListener(l, listenHost, port, routines > 1, c.GetInt("listen.batch", 64))
+			}
 			if err != nil {
 				return nil, util.NewContextualError("Failed to open udp listener", m{"queue": i}, err)
 			}
