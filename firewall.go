@@ -864,13 +864,15 @@ func (fr *FirewallRule) match(p firewall.Packet, c *cert.NebulaCertificate) bool
 
 	matched := false
 	prefix := netip.PrefixFrom(p.RemoteIP, p.RemoteIP.BitLen())
-	fr.CIDR.EachLookupPrefix(prefix, func(prefix netip.Prefix, val *firewallLocalCIDR) bool {
+	// bart v0.18.0 replaced the EachLookupPrefix callback API with iterators.
+	// Supernets returns every stored CIDR that covers <prefix> (longest-prefix
+	// first), which is exactly the set EachLookupPrefix visited.
+	for prefix, val := range fr.CIDR.Supernets(prefix) {
 		if prefix.Contains(p.RemoteIP) && val.match(p, c) {
 			matched = true
-			return false
+			break
 		}
-		return true
-	})
+	}
 	return matched
 }
 
